@@ -8,36 +8,36 @@
     body { font-family: Arial; margin: 0; background: #f5f5f5; }
     header { background: #8B0000; color: white; padding: 15px; text-align: center; display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap:10px; }
     header input { width: 200px; text-align: center; font-size: 16px; font-weight: bold; background: white; color: #8B0000; border: none; padding: 5px; border-radius: 5px;}
-  .login { max-width: 400px; margin: 100px auto; background:white; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); }
-  .login h2 { color:#8B0000; text-align:center; }
-  .tabs { display: flex; background: #A52A2A; flex-wrap: wrap; overflow-x: auto; }
-  .tab { flex: 1; padding: 12px; color: white; cursor: pointer; border: none; background: #A52A2A; font-weight: bold; min-width: 120px; }
-  .tab.active { background: #8B0000; }
-  .tab.oculto { display:none; }
-  .content { display: none; padding: 15px; }
-  .content.active { display: block; }
-  .tabla-contenedor { overflow-x: auto; width: 100%; }
+ .login { max-width: 400px; margin: 100px auto; background:white; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); }
+ .login h2 { color:#8B0000; text-align:center; }
+ .tabs { display: flex; background: #A52A2A; flex-wrap: wrap; overflow-x: auto; }
+ .tab { flex: 1; padding: 12px; color: white; cursor: pointer; border: none; background: #A52A2A; font-weight: bold; min-width: 120px; }
+ .tab.active { background: #8B0000; }
+ .tab.oculto { display:none; }
+ .content { display: none; padding: 15px; }
+ .content.active { display: block; }
+ .tabla-contenedor { overflow-x: auto; width: 100%; }
     table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; font-size: 12px; min-width: 700px; }
     th { background: #8B0000; color: white; padding: 8px; position: sticky; top: 0; }
     td { padding: 6px; border: 1px solid #ddd; }
     input, select { width: 95%; border: 1px solid #ccc; padding: 6px; border-radius: 3px; font-size: 14px; }
     input[readonly] { background: #e9e9e9; }
-  .btn { background: #8B0000; color: white; padding: 12px 15px; border: none; border-radius: 5px; cursor: pointer; margin: 8px 5px 0 0; font-size: 14px; }
-  .btn.verde { background: #28a745; }
-  .btn.azul { background: #007bff; }
-  .btn.rojo { background: #dc3545; padding: 6px 10px; font-size: 12px; }
-  .btn.naranja { background: #fd7e14; }
-  .btn.morado { background: #6f42c1; }
-  .box { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-  .alerta { color: red; font-weight: bold; }
-  .ok { color: green; font-weight: bold; }
-  .ganancia { font-size: 18px; font-weight: bold; color: #28a745; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+ .btn { background: #8B0000; color: white; padding: 12px 15px; border: none; border-radius: 5px; cursor: pointer; margin: 8px 5px 0 0; font-size: 14px; }
+ .btn.verde { background: #28a745; }
+ .btn.azul { background: #007bff; }
+ .btn.rojo { background: #dc3545; padding: 6px 10px; font-size: 12px; }
+ .btn.naranja { background: #fd7e14; }
+ .btn.morado { background: #6f42c1; }
+ .box { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+ .alerta { color: red; font-weight: bold; }
+ .ok { color: green; font-weight: bold; }
+ .ganancia { font-size: 18px; font-weight: bold; color: #28a745; }
+ .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+ .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
     #app { display:none; }
-  .buscar { width: 250px; margin-bottom: 10px; padding: 6px; }
+ .buscar { width: 250px; margin-bottom: 10px; padding: 6px; }
     #videoScanner { width: 100%; max-width: 400px; border: 2px solid #8B0000; border-radius: 8px; display:none; }
-   .sync { position: fixed; bottom: 10px; right: 10px; background: #28a745; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; z-index: 999; }
+  .sync { position: fixed; bottom: 10px; right: 10px; background: #28a745; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; z-index: 999; }
     @media print {.tabs, header.btn,.btn { display:none!important; } body { background:white; } }
     @media (max-width: 768px) {.grid-2,.grid-3 { grid-template-columns: 1fr; } header { flex-direction: column; } header input { width: 100%; } }
 </style>
@@ -52,7 +52,6 @@
   import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  // 1. PEGA AQUI TUS 6 LLAVES DE FIREBASE
  const firebaseConfig = {
   apiKey: "AIzaSyA4w5DiFRhAbktdEfDqIgpQVWk95VLnshY",
   authDomain: "licoleria-el-dorado.firebaseapp.com",
@@ -245,7 +244,6 @@ function cerrarSesion(){
 function abrirTab(id, el) { document.querySelectorAll('.content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); if(id==='reportes') generarReporte(); }
 function filtrarTabla(idTabla, idInput){ let input = document.getElementById(idInput).value.toLowerCase(); let filas = document.querySelectorAll(`#${idTabla} tbody tr`); filas.forEach(fila => { let texto = fila.innerText.toLowerCase(); fila.style.display = texto.includes(input)? "" : "none"; }); }
 
-// SOLO DEJE ESTA VERSION DE CREAR USUARIO - LA QUE SI FUNCIONA
 async function crearUsuario(){
     const { createUserWithEmailAndPassword } = window.firebaseAPI;
     let u = document.getElementById('newUser').value.trim();
@@ -269,15 +267,6 @@ async function crearUsuario(){
     }
 }
 
-function cargarUsuarios(){ let tbody = document.querySelector("#tablaUsuarios tbody"); tbody.innerHTML = ""; DB.usuarios.forEach((u,i)=> tbody.innerHTML += `<tr><td>${u.user}</td><td>${u.rol}</td><td>${u.user!=='admin'?`<button class="btn rojo" onclick="DB.usuarios.splice(${i},1); guardarDB(); agregarHistorial('Usuario', 'Eliminado usuario: ${u.user}'); cargarUsuarios()">X</button>`:""}</td></tr>`); }
-
-
-function cargarUsuarios(){ let tbody = document.querySelector("#tablaUsuarios tbody"); tbody.innerHTML = ""; DB.usuarios.forEach((u,i)=> tbody.innerHTML += `<tr><td>${u.user}</td><td>${u.rol}</td><td>${u.user!=='admin'?`<button class="btn rojo" onclick="DB.usuarios.splice(${i},1); guardarDB(); agregarHistorial('Usuario', 'Eliminado usuario: ${u.user}'); cargarUsuarios()">X</button>`:""}</td></tr>`); }
-
-function abrirTab(id, el) { document.querySelectorAll('.content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); if(id==='reportes') generarReporte(); }
-function filtrarTabla(idTabla, idInput){ let input = document.getElementById(idInput).value.toLowerCase(); let filas = document.querySelectorAll(`#${idTabla} tbody tr`); filas.forEach(fila => { let texto = fila.innerText.toLowerCase(); fila.style.display = texto.includes(input)? "" : "none"; }); }
-
-function crearUsuario(){ let u = document.getElementById('newUser').value.trim(); let p = document.getElementById('newPass').value; let r = document.getElementById('newRol').value; if(!u ||!p) return alert("Completa campos"); if(DB.usuarios.find(x=>x.user===u)) return alert("Usuario ya existe"); DB.usuarios.push({user:u, rol:r}); guardarDB(); agregarHistorial("Usuario", `Creado usuario: ${u}`); cargarUsuarios(); document.getElementById('newUser').value=""; document.getElementById('newPass').value=""; }
 function cargarUsuarios(){ let tbody = document.querySelector("#tablaUsuarios tbody"); tbody.innerHTML = ""; DB.usuarios.forEach((u,i)=> tbody.innerHTML += `<tr><td>${u.user}</td><td>${u.rol}</td><td>${u.user!=='admin'?`<button class="btn rojo" onclick="DB.usuarios.splice(${i},1); guardarDB(); agregarHistorial('Usuario', 'Eliminado usuario: ${u.user}'); cargarUsuarios()">X</button>`:""}</td></tr>`); }
 
 function calcularMargen() { let costo = parseFloat(document.getElementById('m_costo').value) || 0; let gastos = parseFloat(document.getElementById('m_gastos').value) || 0; let margen = parseFloat(document.getElementById('m_margen').value) || 0; let costoTotal = costo + gastos; document.getElementById('m_costoTotal').value = costoTotal.toFixed(0); document.getElementById('m_precio').value = (costoTotal / (1 - Math.min(margen,99)/100)).toFixed(0); }
@@ -333,15 +322,41 @@ function actualizarStock() {
 
 function cargarVentasDelDia() { let fecha = document.getElementById("fechaVenta").value; let tbody = document.querySelector("#tablaVentas tbody"); tbody.innerHTML = ""; let total=0; let ventasFiltradas = usuarioActual.rol === 'admin'? DB.ventas.filter(v=>v.fecha===fecha) : DB.ventas.filter(v=>v.fecha===fecha && v.usuario===usuarioActual.user); ventasFiltradas.forEach((v,i)=>{ let idxReal = DB.ventas.indexOf(v); tbody.innerHTML += `<tr><td>${v.hora}</td><td>${v.usuario}</td><td>${v.codigo}</td><td>${v.producto}</td><td>${v.cant}</td><td>${v.desc||0}%</td><td>$${v.sub.toLocaleString('es-CO')}</td><td>${v.pago}</td><td>${usuarioActual.rol==='admin'?`<button class="btn rojo" onclick="anularVenta(${idxReal})">Anular</button>`:""}</td></tr>`; total+=v.sub; }); document.getElementById("totalVentas").innerText = "$" + total.toLocaleString('es-CO'); document.getElementById("ventasSistema").value = total; calcularGananciaDia(); calcularArqueo(); }
 
-function agregarFilaVenta(codigoBuscado="") {
-    let tabla = document.querySelector("#tablaVentas tbody"); let hora = new Date().toTimeString().slice(0,5); let options = '<option value="">-- Producto --</option>';
-    DB.stock.forEach(s => { let actual = s.inicial - s.vendido; if(actual > 0) options += `<option value="${s.precio}" data-codigo="${s.codigo}" data-prod="${s.producto}" data-costo="${s.costo}" data-stock="${actual}" ${s.codigo===codigoBuscado?'selected':''}>${s.codigo} - ${s.producto} - Quedan: ${actual}</option>`; });
-    if(options === '<option value="">-- Producto --</option>') return alert("Sin stock");
-       tabla.innerHTML += `<tr><td><input type="time" value="${hora}"></td><td>${usuarioActual.user}</td><td>${codigoBuscado}</td><td><select onchange="rellenarCodigo(this)">${options}</select></td><td><input type="number" value="1" min="1" oninput="validarCant(this)"></td><td><input type="number" value="0" min="0" max="100" oninput="validarCant(this)">%</td><td>$0</td><td><select><option>Efectivo</option><option>Nequi</option><option>Datafono</option></select></td><td><button class="btn rojo" onclick="this.closest('tr').remove()">X</button></td></tr>`;
-    if(codigoBuscado) rellenarCodigo(tabla.querySelector("tr:last-child select"));
-    }
+function cargarVentasDelDia() {
+    let fecha = document.getElementById("fechaVenta").value;
+    let tbody = document.querySelector("#tablaVentas tbody");
+    tbody.innerHTML = "";
+    let total=0;
+    let ventasFiltradas = usuarioActual.rol === 'admin'? DB.ventas.filter(v=>v.fecha===fecha) : DB.ventas.filter(v=>v.fecha===fecha && v.usuario===usuarioActual.user);
+    ventasFiltradas.forEach((v,i)=>{
+        let idxReal = DB.ventas.indexOf(v);
+        tbody.innerHTML += `<tr><td>${v.hora}</td><td>${v.usuario}</td><td>${v.codigo}</td><td>${v.producto}</td><td>${v.cant}</td><td>${v.desc||0}%</td><td>$${v.sub.toLocaleString('es-CO')}</td><td>${v.pago}</td><td>${usuarioActual.rol==='admin'?`<button class="btn rojo" onclick="anularVenta(${idxReal})">Anular</button>`:""}</td></tr>`;
+        total+=v.sub;
+    });
+    document.getElementById("totalVentas").innerText = "$" + total.toLocaleString('es-CO');
+    document.getElementById("ventasSistema").value = total;
+    calcularGananciaDia();
+    calcularArqueo();
+}
 
-function rellenarCodigo(sel){ let opt=sel.options[sel.selectedIndex]; sel.closest('tr').cells[2].innerText=opt.getAttribute("data-codigo"); validarCant(sel); }
+function agregarFilaVenta(codigoBuscado="") {
+    let tabla = document.querySelector("#tablaVentas tbody");
+    let hora = new Date().toTimeString().slice(0,5);
+    let options = '<option value="">-- Producto --</option>';
+    DB.stock.forEach(s => {
+        let actual = s.inicial - s.vendido;
+        if(actual > 0) options += `<option value="${s.precio}" data-codigo="${s.codigo}" data-prod="${s.producto}" data-costo="${s.costo}" data-stock="${actual}" ${s.codigo===codigoBuscado?'selected':''}>${s.codigo} - ${s.producto} - Quedan: ${actual}</option>`;
+    });
+    if(options === '<option value="">-- Producto --</option>') return alert("Sin stock");
+    tabla.innerHTML += `<tr><td><input type="time" value="${hora}"></td><td>${usuarioActual.user}</td><td>${codigoBuscado}</td><td><select onchange="rellenarCodigo(this)">${options}</select></td><td><input type="number" value="1" min="1" oninput="validarCant(this)"></td><td><input type="number" value="0" min="0" max="100" oninput="validarCant(this)">%</td><td>$0</td><td><select><option>Efectivo</option><option>Nequi</option><option>Datafono</option></select></td><td><button class="btn rojo" onclick="this.closest('tr').remove()">X</button></td></tr>`;
+    if(codigoBuscado) rellenarCodigo(tabla.querySelector("tr:last-child select"));
+}
+
+function rellenarCodigo(sel){
+    let opt=sel.options[sel.selectedIndex];
+    sel.closest('tr').cells[2].innerText=opt.getAttribute("data-codigo");
+    validarCant(sel);
+}
 
 function validarCant(el){
     let fila = el.closest('tr');
@@ -349,7 +364,7 @@ function validarCant(el){
     let cantInput = fila.cells[4].querySelector("input");
     let descInput = fila.cells[5].querySelector("input");
     let stock = parseFloat(select.options[select.selectedIndex]?.getAttribute("data-stock")) || 0;
-    let cant = parseFloat(cantInput.value) || 0; 
+    let cant = parseFloat(cantInput.value) || 0;
     let desc = parseFloat(descInput.value) || 0;
     if(cant > stock){ alert(`⚠️ Solo hay ${stock} unidades de ${select.options[select.selectedIndex].getAttribute("data-prod")}`); cantInput.value = stock; cant = stock; }
     if(cant < 1) cantInput.value = 1;
@@ -362,7 +377,8 @@ function validarCant(el){
 
 async function registrarVenta() {
     let fecha = document.getElementById("fechaVenta").value;
-    let hubo = false; let detalleVenta = [];
+    let hubo = false;
+    let detalleVenta = [];
     document.querySelectorAll("#tablaVentas tbody tr").forEach(fila => {
         let select = fila.cells[3].querySelector("select");
         if(!select || select.value === "") return;
@@ -391,11 +407,20 @@ async function registrarVenta() {
         let totalVenta = detalleVenta.reduce((a,b)=>a+parseFloat(b.split('$')[1].replace(/\./g,'')),0);
         agregarHistorial("Venta", detalleVenta.join(" | "));
         imprimirTicket(fecha, detalleVenta, totalVenta);
-        cargarTodo(); alert("✅ Venta(s) registrada(s) en la Nube");
+        cargarTodo();
+        alert("✅ Venta(s) registrada(s) en la Nube");
     } else { alert("⚠️ Agrega productos"); }
 }
 
-function anularVenta(index) { let venta = DB.ventas[index]; let item = DB.stock.find(s=>s.codigo===venta.codigo); if(item) item.vendido-=venta.cant; agregarHistorial("Venta", `Anulada: ${venta.cant}x ${venta.producto}`); DB.ventas.splice(index,1); guardarDB(); cargarTodo(); }
+function anularVenta(index) {
+    let venta = DB.ventas[index];
+    let item = DB.stock.find(s=>s.codigo===venta.codigo);
+    if(item) item.vendido-=venta.cant;
+    agregarHistorial("Venta", `Anulada: ${venta.cant}x ${venta.producto}`);
+    DB.ventas.splice(index,1);
+    guardarDB();
+    cargarTodo();
+}
 
 function agregarHistorial(tipo, detalle){
     let fecha = new Date().toISOString().slice(0,10);
@@ -408,19 +433,20 @@ function agregarHistorial(tipo, detalle){
 }
 
 function cargarHistorial(){
-    let tbody = document.querySelector("#tablaHistorial tbody"); 
+    let tbody = document.querySelector("#tablaHistorial tbody");
     tbody.innerHTML = "";
     let historialFiltrado = usuarioActual.rol === 'admin'? DB.historial : DB.historial.filter(h => h.usuario === usuarioActual.user);
-    historialFiltrado.reverse().forEach(h=> { 
+    historialFiltrado.reverse().forEach(h=> {
         tbody.innerHTML += `<tr><td>${h.fecha}</td><td>${h.hora}</td><td>${h.tipo}</td><td>${h.detalle}</td><td>$${h.ventas.toLocaleString('es-CO')}</td><td>$${h.costo.toLocaleString('es-CO')}</td><td>$${h.ganancia.toLocaleString('es-CO')}</td><td>${h.usuario}</td></tr>`
     });
 }
-function calcularGananciaDia() { 
-    let fecha = document.getElementById("fechaVenta").value; 
-    let ventasDia = DB.ventas.filter(v => v.fecha === fecha); 
-    let totalVentas = ventasDia.reduce((a,b)=>a+b.sub,0); 
-    let totalCosto = ventasDia.reduce((a,b)=>a+(b.costo*b.cant),0); 
-    document.getElementById("gananciaDia").innerText = "$" + (totalVentas - totalCosto).toLocaleString('es-CO'); 
+
+function calcularGananciaDia() {
+    let fecha = document.getElementById("fechaVenta").value;
+    let ventasDia = DB.ventas.filter(v => v.fecha === fecha);
+    let totalVentas = ventasDia.reduce((a,b)=>a+b.sub,0);
+    let totalCosto = ventasDia.reduce((a,b)=>a+(b.costo*b.cant),0);
+    document.getElementById("gananciaDia").innerText = "$" + (totalVentas - totalCosto).toLocaleString('es-CO');
 }
 
 function calcularArqueo() {
@@ -430,11 +456,11 @@ function calcularArqueo() {
     document.getElementById("ventasSistema").value = totalVentasDia;
     let denominaciones = [100000,50000,20000,10000,5000,2000,1000,500,200,100,50];
     let totalEfectivo = 0;
-    document.querySelectorAll("#tablaBilletes tbody tr").forEach((fila, i) => { 
-        let cant = parseFloat(fila.cells[2].querySelector("input").value) || 0; 
-        let sub = cant * denominaciones[i]; 
-        fila.cells[3].innerText = "$" + sub.toLocaleString('es-CO'); 
-        totalEfectivo += sub; 
+    document.querySelectorAll("#tablaBilletes tbody tr").forEach((fila, i) => {
+        let cant = parseFloat(fila.cells[2].querySelector("input").value) || 0;
+        let sub = cant * denominaciones[i];
+        fila.cells[3].innerText = "$" + sub.toLocaleString('es-CO');
+        totalEfectivo += sub;
     });
     document.getElementById("totalEfectivo").innerText = "$" + totalEfectivo.toLocaleString('es-CO');
     let nequi = parseFloat(document.getElementById("nequi").value) || 0;
@@ -473,10 +499,10 @@ function descargarBackup(){
 function cargarBackup(e){
     let file = e.target.files[0];
     let reader = new FileReader();
-    reader.onload = function(){ 
-        DB = JSON.parse(reader.result); 
-        guardarDB(); 
-        location.reload(); 
+    reader.onload = function(){
+        DB = JSON.parse(reader.result);
+        guardarDB();
+        location.reload();
     }
     reader.readAsText(file);
 }
@@ -490,7 +516,7 @@ function generarReporte(){
     document.getElementById("repVentas").innerText = "$" + totalVentas.toLocaleString('es-CO');
     document.getElementById("repGanancia").innerText = "$" + ganancia.toLocaleString('es-CO');
     document.getElementById("repTicket").innerText = "$" + (ventasMes.length>0? (totalVentas/ventasMes.length) : 0).toLocaleString('es-CO');
-    
+
     let top = {};
     ventasMes.forEach(v=>{ top[v.producto] = top[v.producto]||{cant:0,total:0}; top[v.producto].cant+=v.cant; top[v.producto].total+=v.sub; });
     let tbodyTop = document.querySelector("#tablaTop tbody"); tbodyTop.innerHTML="";
@@ -578,17 +604,17 @@ async function imprimirCuadre(){
     doc.save("Arqueo_" + document.getElementById("fechaArqueo").value + ".pdf");
 }
 
-function atajosTeclado() { 
-    document.addEventListener('keydown', function(e) { 
-        if(document.getElementById('ventas').classList.contains('active')){ 
-            if(e.key === 'F2') agregarFilaVenta(); 
+function atajosTeclado() {
+    document.addEventListener('keydown', function(e) {
+        if(document.getElementById('ventas').classList.contains('active')){
+            if(e.key === 'F2') agregarFilaVenta();
             if(e.key === 'F4') escanearCodigo();
-            if(e.key === 'Enter') registrarVenta(); 
-        } 
-        if(document.getElementById('arqueo').classList.contains('active')){ 
-            if(e.key === 'F9') calcularArqueo(); 
-        } 
-    }); 
+            if(e.key === 'Enter') registrarVenta();
+        }
+        if(document.getElementById('arqueo').classList.contains('active')){
+            if(e.key === 'F9') calcularArqueo();
+        }
+    });
 }
 
 window.onload = () => {
