@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SISTEMA DE INVENTARIO</title>
+<style>
+    body { font-family: Arial; margin: 0; background: #f5f5f5; }
+    header { background: #8B0000; color: white; padding: 15px; text-align: center; display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap:10px; }
+    header input { width: 200px; text-align: center; font-size: 16px; font-weight: bold; background: white; color: #8B0000; border: none; padding: 5px; border-radius: 5px;}
+  .login { max-width: 400px; margin: 100px auto; background:white; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); }
+  .login h2 { color:#8B0000; text-align:center; }
+  .tabs { display: flex; background: #A52A2A; flex-wrap: wrap; overflow-x: auto; }
+  .tab { flex: 1; padding: 12px; color: white; cursor: pointer; border: none; background: #A52A2A; font-weight: bold; min-width: 120px; }
+  .tab.active { background: #8B0000; }
+  .tab.oculto { display:none; }
+  .content { display: none; padding: 15px; }
+  .content.active { display: block; }
+  .tabla-contenedor { overflow-x: auto; width: 100%; }
+    table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; font-size: 12px; min-width: 700px; }
+    th { background: #8B0000; color: white; padding: 8px; position: sticky; top: 0; }
+    td { padding: 6px; border: 1px solid #ddd; }
+    input, select { width: 95%; border: 1px solid #ccc; padding: 6px; border-radius: 3px; font-size: 14px; }
+    input[readonly] { background: #e9e9e9; }
+  .btn { background: #8B0000; color: white; padding: 12px 15px; border: none; border-radius: 5px; cursor: pointer; margin: 8px 5px 0 0; font-size: 14px; }
+  .btn.verde { background: #28a745; }
+  .btn.azul { background: #007bff; }
+  .btn.rojo { background: #dc3545; padding: 6px 10px; font-size: 12px; }
+  .btn.naranja { background: #fd7e14; }
+  .btn.morado { background: #6f42c1; }
+  .box { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+  .alerta { color: red; font-weight: bold; }
+  .ok { color: green; font-weight: bold; }
+  .ganancia { font-size: 18px; font-weight: bold; color: #28a745; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+    #app { display:none; }
+  .buscar { width: 250px; margin-bottom: 10px; padding: 6px; }
+    #videoScanner { width: 100%; max-width: 400px; border: 2px solid #8B0000; border-radius: 8px; display:none; }
+   .sync { position: fixed; bottom: 10px; right: 10px; background: #28a745; color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; z-index: 999; }
+    @media print {.tabs, header.btn,.btn { display:none!important; } body { background:white; } }
+    @media (max-width: 768px) {.grid-2,.grid-3 { grid-template-columns: 1fr; } header { flex-direction: column; } header input { width: 100%; } }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@0.20.0"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  // 1. PEGA AQUI TUS 6 LLAVES DE FIREBASE
+ const firebaseConfig = {
+  apiKey: "AIzaSyA4w5DiFRhAbktdEfDqIgpQVWk95VLnshY",
+  authDomain: "licoleria-el-dorado.firebaseapp.com",
+  projectId: "licoleria-el-dorado",
+  storageBucket: "licoleria-el-dorado.firebasestorage.app",
+  messagingSenderId: "392604857351",
+  appId: "1:392604857351:web:9050dc0c7ef7773190e6a2",
+  measurementId: "G-D7HPYLVBEW"
+};
+
+  const app = initializeApp(firebaseConfig);
+  window.db = getFirestore(app);
+  window.auth = getAuth(app);
+  window.firebaseAPI = { doc, getDoc, setDoc, onSnapshot, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword };
+</script>
+</head>
+<body>
+
+<div id="loginScreen" class="login">
+    <h2> ACCESO AL SISTEMA</h2>
+    <label>Correo:</label><input type="email" id="userLogin" placeholder="admin@tuempresa.com">
+    <label>Clave:</label><input type="password" id="passLogin">
+    <button class="btn verde" style="width:100%; margin-top:15px;" onclick="iniciarSesion()">Entrar</button>
+    <button class="btn azul" style="width:100%; margin-top:8px;" onclick="registrarUsuario()">Crear Cuenta Nueva</button>
+    <p style="font-size:11px; color:#666; text-align:center;">INGRESA CON TU CORREO Y CLAVE.</p>
+</div>
+
+<div id="app">
+<header>
+    <h1>SISTEMA DE INVENTARIO</h1>
+    <div><span id="usuarioActual"></span><input type="text" id="nombreLicoreria" placeholder="Nombre Negocio" onchange="guardarDB()"><button class="btn rojo" onclick="cerrarSesion()">Salir</button></div>
+</header>
+<span class="sync" id="estadoSync">🟡 Conectando...</span>
+
+<div class="tabs">
+    <button class="tab active" onclick="abrirTab('margen', this)">📊 Margen</button>
+    <button class="tab" onclick="abrirTab('inventario', this)">📦 Inventario</button>
+    <button class="tab" onclick="abrirTab('stock', this)">📊 Stock</button>
+    <button class="tab" onclick="abrirTab('ventas', this)">💰 Ventas</button>
+    <button class="tab" onclick="abrirTab('reportes', this)">📈 Reportes</button>
+    <button class="tab" onclick="abrirTab('historial', this)">📜 Historial</button>
+    <button class="tab" onclick="abrirTab('arqueo', this)">🧾 Arqueo</button>
+    <button class="tab" id="tabUsuarios" onclick="abrirTab('usuarios', this)">👥 Usuarios</button>
+</div>
+
+<div id="margen" class="content active">
+    <div class="grid-2"><div class="box"><h3>Calcular Precio</h3><label>Producto:</label><input type="text" id="m_prod"><label>Código Barras:</label><input type="text" id="m_codigo"><label>Costo $:</label><input type="number" id="m_costo" value="0" oninput="calcularMargen()"><label>Gastos $:</label><input type="number" id="m_gastos" value="0" oninput="calcularMargen()"><label>Costo Total $:</label><input type="number" id="m_costoTotal" readonly><label>Margen %:</label><input type="number" id="m_margen" value="30" oninput="calcularMargen()"><label>Precio Sugerido $:</label><input type="number" id="m_precio" readonly><button class="btn verde" onclick="enviarAInventario()">➡️ Enviar a Inventario</button></div><div class="box"><h3>Lista Rápida</h3><div class="tabla-contenedor"><table id="tablaMargen"><thead><tr><th>Producto</th><th>Costo</th><th>Precio</th><th>Margen</th></tr></thead><tbody></tbody></table></div></div></div>
+</div>
+
+<div id="inventario" class="content">
+    <button class="btn azul" onclick="exportarExcel('inventario')">📤 Exportar Excel</button>
+    <button class="btn" onclick="descargarBackup()">💾 Backup</button>
+    <input type="file" id="cargarBackupFile" accept=".json" style="display:none" onchange="cargarBackup(event)">
+    <button class="btn naranja" onclick="document.getElementById('cargarBackupFile').click()">📥 Cargar Backup</button>
+    <button class="btn verde" onclick="guardarInventario()">💾 Guardar Cambios</button>
+    <input type="text" id="buscarInv" class="buscar" placeholder="🔍 Buscar producto o código..." onkeyup="filtrarTabla('tablaInventario', 'buscarInv')">
+    <div class="tabla-contenedor"><table id="tablaInventario"><thead><tr><th>Código</th><th>Producto</th><th>Marca</th><th>Presentación</th><th>Cant</th><th>Costo $</th><th>Precio $</th><th>Inversión</th><th>Barcode</th><th></th></tr></thead><tbody></tbody><tfoot><tr><td colspan="7">TOTAL INVERSIÓN</td><td id="totalInv">$0</td><td colspan="2"></td></tr></tfoot></table></div><button class="btn" onclick="agregarFilaInv()">+ Agregar</button>
+</div>
+
+<div id="stock" class="content">
+    <div id="alertaStock" class="box" style="display:none;"><h3 class="alerta">⚠️ PRODUCTOS CON STOCK BAJO</h3><ul id="listaBajos"></ul></div>
+    <div class="grid-3"><div class="box"><b>Ganancia Potencial:</b> <span class="ganancia" id="gananciaPotencial">$0</span></div><div class="box"><b>Inversión Total:</b> <span class="ganancia" id="inversionTotal">$0</span></div><div class="box"><b>Productos Bajos:</b> <span class="alerta" id="productosBajos">0</span></div></div>
+    <div class="tabla-contenedor"><table id="tablaStock"><thead><tr><th>Código</th><th>Producto</th><th>Stock</th><th>Precio</th><th>Costo</th><th>Ganancia U.</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<div id="ventas" class="content">
+    <button class="btn azul" onclick="exportarExcel('ventas')">📤 Exportar</button>
+    <button class="btn morado" onclick="toggleScanner()">📷 Escanear Cámara</button>
+    <video id="videoScanner"></video>
+    <button class="btn rojo" id="btnCerrarScanner" style="display:none;" onclick="toggleScanner()">Cerrar Cámara</button>
+    <div class="box">
+        <b>Fecha:</b> <input type="date" id="fechaVenta" onchange="cargarVentasDelDia()">
+        <b> Buscar:</b> <input type="text" id="buscarVenta" class="buscar" placeholder="🔍 Código o producto..." onkeyup="filtrarTabla('tablaVentas', 'buscarVenta')">
+        <b> Atajos:</b> F2=Nueva | Enter=Registrar | F4=Escanear
+    </div>
+    <div class="tabla-contenedor"><table id="tablaVentas"><thead><tr><th>Hora</th><th>Usuario</th><th>Código</th><th>Producto</th><th>Cant</th><th>%Desc</th><th>Total $</th><th>Pago</th><th>Acción</th></tr></thead><tbody></tbody><tfoot><tr><td colspan="6">TOTAL VENTAS</td><td id="totalVentas">$0</td><td colspan="2"></td></tr></tfoot></table></div>
+    <button class="btn" onclick="agregarFilaVenta()">F2 + Agregar</button>
+    <button class="btn verde" onclick="registrarVenta()">Enter ✅ Registrar y Guardar Historial</button>
+</div>
+
+<div id="reportes" class="content">
+    <div class="box"><h3>📈 Reporte Mensual</h3>
+        <label>Mes:</label><input type="month" id="mesReporte" onchange="generarReporte()">
+        <button class="btn azul" onclick="generarReporte()">Generar</button>
+        <button class="btn" onclick="imprimirReportePDF()">🖨️ PDF</button>
+    </div>
+    <div class="grid-3">
+        <div class="box"><b>Ventas del Mes:</b><br><span class="ganancia" id="repVentas">$0</span></div>
+        <div class="box"><b>Ganancia del Mes:</b><br><span class="ganancia" id="repGanancia">$0</span></div>
+        <div class="box"><b>Ticket Promedio:</b><br><span class="ganancia" id="repTicket">$0</span></div>
+    </div>
+    <div class="grid-2">
+        <div class="box"><h4>Top 10 Productos Vendidos</h4><div class="tabla-contenedor"><table id="tablaTop"><thead><tr><th>Producto</th><th>Cant</th><th>Total $</th></tr></thead><tbody></tbody></table></div></div>
+        <div class="box"><h4>Ventas por Día</h4><div class="tabla-contenedor"><table id="tablaDias"><thead><tr><th>Fecha</th><th>Ventas $</th><th>Ganancia $</th></tr></thead><tbody></tbody></table></div></div>
+    </div>
+</div>
+
+<div id="historial" class="content"><button class="btn azul" onclick="exportarExcel('historial')">📤 Exportar</button><div class="box"><b>Ganancia del Día:</b> <span class="ganancia" id="gananciaDia">$0</span></div><div class="tabla-contenedor"><table id="tablaHistorial"><thead><tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Detalle</th><th>Ventas $</th><th>Costo $</th><th>Ganancia $</th><th>Usuario</th></tr></thead><tbody></tbody></table></div></div>
+
+<div id="arqueo" class="content">
+    <div class="box"><b>Fecha:</b> <input type="date" id="fechaArqueo"><b>Base Inicial $:</b> <input type="number" id="base" value="100000" oninput="calcularArqueo()"><b>Ventas Sistema $:</b> <input type="number" id="ventasSistema" readonly><p><b>Atajo:</b> F9 = Solo Cuadrar</p></div>
+    <div class="box"><h3>Conteo Efectivo COP</h3><div class="tabla-contenedor"><table id="tablaBilletes"><thead><tr><th>Denominación</th><th>Tipo</th><th>Cantidad</th><th>Subtotal</th></tr></thead><tbody>
+        <tr><td>$100,000</td><td>Billete</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$50,000</td><td>Billete</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$20,000</td><td>Billete</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$10,000</td><td>Billete</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$5,000</td><td>Billete</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$2,000</td><td>Billete</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$1,000</td><td>Moneda</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$500</td><td>Moneda</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$200</td><td>Moneda</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$100</td><td>Moneda</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr><tr><td>$50</td><td>Moneda</td><td><input type="number" value="0" oninput="calcularArqueo()"></td><td class="sub">$0</td></tr>
+    </tbody><tfoot><tr><th colspan="3">TOTAL EFECTIVO</th><th id="totalEfectivo">$0</th></tr></tfoot></table></div></div>
+    <div class="box"><h3>Otros Pagos</h3>Nequi + bancolombia: <input type="number" id="nequi" value="0" oninput="calcularArqueo()"> Datafono: <input type="number" id="datafono" value="0" oninput="calcularArqueo()"></div>
+    <div class="box"><h3>Cuadre</h3><p><b>Total Contado:</b> <span id="totalContado">$0</span></p><p><b>Sobrante / Faltante:</b> <span id="diferencia">$0</span></p><button class="btn azul" onclick="calcularArqueo()">F9 🧮 Solo Cuadrar</button><button class="btn verde" onclick="guardarCuadre()">💾 Guardar en Historial</button><button class="btn" onclick="imprimirCuadre()">🖨️ Imprimir PDF</button></div>
+</div>
+
+</div>
+
+<script>
+let DB = { usuarios: [], stock: [], ventas: [], historial: [], margen: [], nombre: "" };
+let usuarioActual = null;
+let codeReader = new ZXing.BrowserMultiFormatReader();
+let scannerActivo = false;
+let unsubscribe = null;
+
+async function cargarDB(){
+    const { doc, onSnapshot } = window.firebaseAPI;
+    unsubscribe = onSnapshot(doc(window.db, "sistemas", "licoreria1"), (snap) => {
+        if(snap.exists()){
+            DB = snap.data();
+            document.getElementById('nombreLicoreria').value = DB.nombre || "";
+            if(usuarioActual) cargarTodo();
+            document.getElementById('estadoSync').innerText = "🟢 Sincronizado " + new Date().toTimeString().slice(0,5);
+            document.getElementById('estadoSync').style.background = "#28a745";
+        } else { guardarDB(); }
+    }, (err) => {
+        document.getElementById('estadoSync').innerText = "🔴 Sin conexión";
+        document.getElementById('estadoSync').style.background = "#dc3545";
+    });
+}
+
+async function guardarDB(){
+    const { setDoc, doc } = window.firebaseAPI;
+    DB.nombre = document.getElementById('nombreLicoreria').value;
+    document.getElementById('estadoSync').innerText = "🟡 Guardando...";
+    await setDoc(doc(window.db, "sistemas", "licoreria1"), DB);
+}
+
+async function registrarUsuario(){
+    const { createUserWithEmailAndPassword } = window.firebaseAPI;
+    let email = document.getElementById('userLogin').value;
+    let pass = document.getElementById('passLogin').value;
+    if(!email ||!pass) return alert("Completa correo y clave");
+    try{
+        await createUserWithEmailAndPassword(window.auth, email, pass);
+        let rol = DB.usuarios.length === 0? "admin" : "vendedor";
+        DB.usuarios.push({user: email, rol: rol});
+        await guardarDB();
+        alert(`✅ Usuario creado como ${rol}. Ahora inicia sesión`);
+    } catch(e){ alert("Error: " + e.message) }
+}
+
+async function iniciarSesion(){
+    const { signInWithEmailAndPassword } = window.firebaseAPI;
+    let u = document.getElementById('userLogin').value.trim();
+    let p = document.getElementById('passLogin').value;
+    try{
+        await signInWithEmailAndPassword(window.auth, u, p);
+        usuarioActual = DB.usuarios.find(x => x.user === u) || {user: u, rol: "vendedor"};
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('usuarioActual').innerText = `Usuario: ${usuarioActual.user} (${usuarioActual.rol})`;
+        if(usuarioActual.rol!== 'admin') document.getElementById('tabUsuarios').classList.add('visible');
+        cargarDB();
+    } catch(e){ alert("❌ Correo o clave incorrecta") }
+}
+
+function cerrarSesion(){
+    const { signOut } = window.firebaseAPI;
+    signOut(window.auth);
+    if(unsubscribe) unsubscribe();
+    usuarioActual = null;
+    document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('app').style.display = 'none';
+}
+
+function abrirTab(id, el) { document.querySelectorAll('.content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); if(id==='reportes') generarReporte(); }
+function filtrarTabla(idTabla, idInput){ let input = document.getElementById(idInput).value.toLowerCase(); let filas = document.querySelectorAll(`#${idTabla} tbody tr`); filas.forEach(fila => { let texto = fila.innerText.toLowerCase(); fila.style.display = texto.includes(input)? "" : "none"; }); }
+
+function cargarUsuarios(){ let tbody = document.querySelector("#tablaUsuarios tbody"); tbody.innerHTML = ""; DB.usuarios.forEach((u,i)=> tbody.innerHTML += `<tr><td>${u.user}</td><td>${u.rol}</td><td>${u.user!=='admin'?`<button class="btn rojo" onclick="DB.usuarios.splice(${i},1); guardarDB(); agregarHistorial('Usuario', 'Eliminado usuario: ${u.user}'); cargarUsuarios()">X</button>`:""}</td></tr>`); }
+
+function calcularMargen() { let costo = parseFloat(document.getElementById('m_costo').value) || 0; let gastos = parseFloat(document.getElementById('m_gastos').value) || 0; let margen = parseFloat(document.getElementById('m_margen').value) || 0; let costoTotal = costo + gastos; document.getElementById('m_costoTotal').value = costoTotal.toFixed(0); document.getElementById('m_precio').value = (costoTotal / (1 - Math.min(margen,99)/100)).toFixed(0); }
+function enviarAInventario() { let prod = document.getElementById('m_prod').value.trim(); let cod = document.getElementById('m_codigo').value.trim() || "COD"+Date.now(); if(prod === "") return alert("Pon nombre"); if(DB.stock.find(s=>s.codigo===cod)) return alert("❌ Ese código ya existe"); DB.margen.push({prod, costo: parseFloat(document.getElementById('m_costoTotal').value), precio: parseFloat(document.getElementById('m_precio').value), margen: parseFloat(document.getElementById('m_margen').value)}); DB.stock.push({codigo: cod, producto: prod, marca: "", pres: "", inicial: 0, vendido: 0, precio: parseFloat(document.getElementById('m_precio').value), costo: parseFloat(document.getElementById('m_costoTotal').value)}); guardarDB(); agregarHistorial("Inventario", `Agregado desde Margen: ${prod}`); cargarTodo(); alert("✅ Enviado a Inventario"); }
+
+function cargarTodo(){ cargarInventario(); cargarVentasDelDia(); cargarUsuarios(); cargarMargen(); cargarHistorial(); calcularMargen(); calcularArqueo(); }
+function cargarMargen(){ let tbody = document.querySelector("#tablaMargen tbody"); tbody.innerHTML = ""; DB.margen.forEach(p=> tbody.innerHTML += `<tr><td>${p.prod}</td><td>$${p.costo.toLocaleString('es-CO')}</td><td>$${p.precio.toLocaleString('es-CO')}</td><td>${p.margen}%</td></tr>`); }
+
+function cargarInventario() {
+    let tbodyInv = document.querySelector("#tablaInventario tbody"); tbodyInv.innerHTML = ""; let total=0;
+    DB.stock.forEach((item,i) => {
+        tbodyInv.innerHTML += `<tr><td><input value="${item.codigo}"></td><td><input value="${item.producto}"></td><td><input value="${item.marca}"></td><td><input value="${item.pres}"></td><td><input type="number" value="${item.inicial}"></td><td><input type="number" value="${item.costo}"></td><td><input type="number" value="${item.precio}"></td><td>$${(item.inicial*item.costo).toLocaleString('es-CO')}</td><td><svg id="bar${i}"></svg></td><td><button class="btn rojo" onclick="eliminarProducto(${i})">X</button></td></tr>`;
+        setTimeout(()=>JsBarcode(`#bar${i}`, item.codigo, {height:30, fontSize:10}),100);
+        total += item.inicial*item.costo;
+    });
+    document.getElementById("totalInv").innerText = "$" + total.toLocaleString('es-CO');
+    actualizarStock();
+}
+function agregarFilaInv() { DB.stock.push({codigo:"COD"+Date.now(), producto:"", marca:"", pres:"", inicial:0, vendido:0, precio:0, costo:0}); cargarInventario(); }
+function eliminarProducto(i){ let nom = DB.stock[i].producto; DB.stock.splice(i,1); guardarDB(); agregarHistorial("Inventario", `Eliminado: ${nom}`); cargarInventario(); }
+function guardarInventario() {
+    let codigos = []; let nuevoStock = []; let error = false;
+    document.querySelectorAll("#tablaInventario tbody tr").forEach((fila, i) => {
+        let itemViejo = DB.stock[i] || {vendido:0}; let codigo = fila.cells[0].querySelector("input").value.trim();
+        if(!codigo) return; if(codigos.includes(codigo)){ alert(`❌ Código duplicado: ${codigo}`); error=true; } codigos.push(codigo);
+        if(fila.cells[1].querySelector("input").value) nuevoStock.push({
+            codigo, producto: fila.cells[1].querySelector("input").value, marca: fila.cells[2].querySelector("input").value,
+            pres: fila.cells[3].querySelector("input").value, inicial: parseFloat(fila.cells[4].querySelector("input").value)||0,
+            vendido: itemViejo.vendido || 0, precio: parseFloat(fila.cells[6].querySelector("input").value)||0,
+            costo: parseFloat(fila.cells[5].querySelector("input").value)||0
+        });
+    });
+    if(error) return; DB.stock = nuevoStock; guardarDB(); agregarHistorial("Inventario", "Actualización masiva de inventario");
+    let total=0; DB.stock.forEach(item => total += item.inicial*item.costo); document.getElementById("totalInv").innerText = "$" + total.toLocaleString('es-CO');
+    actualizarStock(); alert("✅ Inventario Guardado en la Nube");
+}
+
+function actualizarStock() {
+    let tbody = document.querySelector("#tablaStock tbody"); tbody.innerHTML = "";
+    let gananciaPotencial = 0; let inversion=0; let bajos=[]; let listaBajosHTML="";
+    DB.stock.forEach(item => {
+        let actual = item.inicial - item.vendido; gananciaPotencial += actual * (item.precio - item.costo); inversion += actual * item.costo;
+        if(actual>0 && actual<=5){ bajos.push(item); listaBajosHTML += `<li>${item.producto}: ${actual} unidades</li>`; }
+        let estado = actual <= 0? '<span class="alerta">AGOTADO</span>' : actual <= 5? '<span class="alerta">BAJO</span>' : '<span class="ok">OK</span>';
+        tbody.innerHTML += `<tr><td>${item.codigo}</td><td>${item.producto}</td><td>${actual}</td><td>$${item.precio.toLocaleString('es-CO')}</td><td>$${item.costo.toLocaleString('es-CO')}</td><td>$${(item.precio-item.costo).toLocaleString('es-CO')}</td><td>${estado}</td></tr>`;
+    });
+    document.getElementById("gananciaPotencial").innerText = "$" + gananciaPotencial.toLocaleString('es-CO');
+    document.getElementById("inversionTotal").innerText = "$" + inversion.toLocaleString('es-CO');
+    document.getElementById("productosBajos").innerText = bajos.length;
+    document.getElementById("alertaStock").style.display = bajos.length>0? "block":"none";
+    document.getElementById("listaBajos").innerHTML = listaBajosHTML;
+}
+
+function cargarVentasDelDia() { let fecha = document.getElementById("fechaVenta").value; let tbody = document.querySelector("#tablaVentas tbody"); tbody.innerHTML = ""; let total=0; let ventasFiltradas = usuarioActual.rol === 'admin'? DB.ventas.filter(v=>v.fecha===fecha) : DB.ventas.filter(v=>v.fecha===fecha && v.usuario===usuarioActual.user); ventasFiltradas.forEach((v,i)=>{ let idxReal = DB.ventas.indexOf(v); tbody.innerHTML += `<tr><td>${v.hora}</td><td>${v.usuario}</td><td>${v.codigo}</td><td>${v.producto}</td><td>${v.cant}</td><td>${v.desc||0}%</td><td>$${v.sub.toLocaleString('es-CO')}</td><td>${v.pago}</td><td>${usuarioActual.rol==='admin'?`<button class="btn rojo" onclick="anularVenta(${idxReal})">Anular</button>`:""}</td></tr>`; total+=v.sub; }); document.getElementById("totalVentas").innerText = "$" + total.toLocaleString('es-CO'); document.getElementById("ventasSistema").value = total; calcularGananciaDia(); calcularArqueo(); }
+
+function agregarFilaVenta(codigoBuscado="") {
+    let tabla = document.querySelector("#tablaVentas tbody"); let hora = new Date().toTimeString().slice(0,5); let options = '<option value="">-- Producto --</option>';
+    DB.stock.forEach(s => { let actual = s.inicial - s.vendido; if(actual > 0) options += `<option value="${s.precio}" data-codigo="${s.codigo}" data-prod="${s.producto}" data-costo="${s.costo}" data-stock="${actual}" ${s.codigo===codigoBuscado?'selected':''}>${s.codigo} - ${s.producto} - Quedan: ${actual}</option>`; });
+    if(options === '<option value="">-- Producto --</option>') return alert("Sin stock");
+       tabla.innerHTML += `<tr><td><input type="time" value="${hora}"></td><td>${usuarioActual.user}</td><td>${codigoBuscado}</td><td><select onchange="rellenarCodigo(this)">${options}</select></td><td><input type="number" value="1" min="1" oninput="validarCant(this)"></td><td><input type="number" value="0" min="0" max="100" oninput="validarCant(this)">%</td><td>$0</td><td><select><option>Efectivo</option><option>Nequi</option><option>Datafono</option></select></td><td><button class="btn rojo" onclick="this.closest('tr').remove()">X</button></td></tr>`;
+    if(codigoBuscado) rellenarCodigo(tabla.querySelector("tr:last-child select"));
+    }
+
+function rellenarCodigo(sel){ let opt=sel.options[sel.selectedIndex]; sel.closest('tr').cells[2].innerText=opt.getAttribute("data-codigo"); validarCant(sel); }
+
+function validarCant(el){
+    let fila = el.closest('tr');
+    let select = fila.cells[3].querySelector("select");
+    let cantInput = fila.cells[4].querySelector("input");
+    let descInput = fila.cells[5].querySelector("input");
+    let stock = parseFloat(select.options[select.selectedIndex]?.getAttribute("data-stock")) || 0;
+    let cant = parseFloat(cantInput.value) || 0; 
+    let desc = parseFloat(descInput.value) || 0;
+    if(cant > stock){ alert(`⚠️ Solo hay ${stock} unidades de ${select.options[select.selectedIndex].getAttribute("data-prod")}`); cantInput.value = stock; cant = stock; }
+    if(cant < 1) cantInput.value = 1;
+    if(desc < 0) descInput.value = 0;
+    if(desc > 100) descInput.value = 100;
+    let precio = parseFloat(select.value) || 0;
+    let subtotal = (precio * cant) * (1 - desc/100);
+    fila.cells[6].innerText = '$' + subtotal.toLocaleString('es-CO');
+}
+
+async function registrarVenta() {
+    let fecha = document.getElementById("fechaVenta").value;
+    let hubo = false; let detalleVenta = [];
+    document.querySelectorAll("#tablaVentas tbody tr").forEach(fila => {
+        let select = fila.cells[3].querySelector("select");
+        if(!select || select.value === "") return;
+        let cant = parseFloat(fila.cells[4].querySelector("input").value);
+        let desc = parseFloat(fila.cells[5].querySelector("input").value)||0;
+        let stock = parseFloat(select.options[select.selectedIndex].getAttribute("data-stock"));
+        if(cant > stock) return alert(`No hay suficiente stock`);
+        hubo = true;
+        let valorBruto = parseFloat(select.value)*cant;
+        let sub = valorBruto*(1-desc/100);
+        let venta = {
+            fecha, hora: fila.cells[0].querySelector("input").value, usuario: usuarioActual.user,
+            codigo: select.options[select.selectedIndex].getAttribute("data-codigo"),
+            producto: select.options[select.selectedIndex].getAttribute("data-prod"), cant, desc,
+            valor: parseFloat(select.value), costo: parseFloat(select.options[select.selectedIndex].getAttribute("data-costo")),
+            sub, pago: fila.cells[7].querySelector("select").value
+        };
+        DB.ventas.push(venta);
+        detalleVenta.push(`${venta.cant}x ${venta.producto} ${desc>0?'-'+desc+'%':''} = $${venta.sub.toLocaleString('es-CO')}`);
+        let item = DB.stock.find(s=>s.codigo===venta.codigo);
+        if(item) item.vendido+=venta.cant;
+        fila.remove();
+    });
+    if(hubo){
+        guardarDB();
+        let totalVenta = detalleVenta.reduce((a,b)=>a+parseFloat(b.split('$')[1].replace(/\./g,'')),0);
+        agregarHistorial("Venta", detalleVenta.join(" | "));
+        imprimirTicket(fecha, detalleVenta, totalVenta);
+        cargarTodo(); alert("✅ Venta(s) registrada(s) en la Nube");
+    } else { alert("⚠️ Agrega productos"); }
+}
+
+function anularVenta(index) { let venta = DB.ventas[index]; let item = DB.stock.find(s=>s.codigo===venta.codigo); if(item) item.vendido-=venta.cant; agregarHistorial("Venta", `Anulada: ${venta.cant}x ${venta.producto}`); DB.ventas.splice(index,1); guardarDB(); cargarTodo(); }
+
+function agregarHistorial(tipo, detalle){
+    let fecha = new Date().toISOString().slice(0,10);
+    let hora = new Date().toTimeString().slice(0,5);
+    let ventasDia = DB.ventas.filter(v => v.fecha === fecha);
+    let totalVentas = ventasDia.reduce((a,b)=>a+b.sub,0);
+    let totalCosto = ventasDia.reduce((a,b)=>a+(b.costo*b.cant),0);
+    DB.historial.push({fecha, hora, tipo, detalle, ventas: totalVentas, costo: totalCosto, ganancia: totalVentas-totalCosto, usuario: usuarioActual.user});
+    guardarDB();
+}
+
+function cargarHistorial(){
+    let tbody = document.querySelector("#tablaHistorial tbody"); 
+    tbody.innerHTML = "";
+    let historialFiltrado = usuarioActual.rol === 'admin'? DB.historial : DB.historial.filter(h => h.usuario === usuarioActual.user);
+    historialFiltrado.reverse().forEach(h=> { 
+        tbody.innerHTML += `<tr><td>${h.fecha}</td><td>${h.hora}</td><td>${h.tipo}</td><td>${h.detalle}</td><td>$${h.ventas.toLocaleString('es-CO')}</td><td>$${h.costo.toLocaleString('es-CO')}</td><td>$${h.ganancia.toLocaleString('es-CO')}</td><td>${h.usuario}</td></tr>`
+    });
+}
+function calcularGananciaDia() { 
+    let fecha = document.getElementById("fechaVenta").value; 
+    let ventasDia = DB.ventas.filter(v => v.fecha === fecha); 
+    let totalVentas = ventasDia.reduce((a,b)=>a+b.sub,0); 
+    let totalCosto = ventasDia.reduce((a,b)=>a+(b.costo*b.cant),0); 
+    document.getElementById("gananciaDia").innerText = "$" + (totalVentas - totalCosto).toLocaleString('es-CO'); 
+}
+
+function calcularArqueo() {
+    let fecha = document.getElementById("fechaArqueo").value;
+    let ventasDia = DB.ventas.filter(v => v.fecha === fecha);
+    let totalVentasDia = ventasDia.reduce((a,b)=>a+b.sub,0);
+    document.getElementById("ventasSistema").value = totalVentasDia;
+    let denominaciones = [100000,50000,20000,10000,5000,2000,1000,500,200,100,50];
+    let totalEfectivo = 0;
+    document.querySelectorAll("#tablaBilletes tbody tr").forEach((fila, i) => { 
+        let cant = parseFloat(fila.cells[2].querySelector("input").value) || 0; 
+        let sub = cant * denominaciones[i]; 
+        fila.cells[3].innerText = "$" + sub.toLocaleString('es-CO'); 
+        totalEfectivo += sub; 
+    });
+    document.getElementById("totalEfectivo").innerText = "$" + totalEfectivo.toLocaleString('es-CO');
+    let nequi = parseFloat(document.getElementById("nequi").value) || 0;
+    let datafono = parseFloat(document.getElementById("datafono").value) || 0;
+    let base = parseFloat(document.getElementById("base").value) || 0;
+    let totalContado = totalEfectivo + nequi + datafono;
+    document.getElementById("totalContado").innerText = "$" + totalContado.toLocaleString('es-CO');
+    let diferencia = totalContado - base - totalVentasDia;
+    document.getElementById("diferencia").innerText = "$" + diferencia.toLocaleString('es-CO');
+    document.getElementById("diferencia").style.color = diferencia >= 0? "green" : "red";
+}
+
+function guardarCuadre() {
+    calcularArqueo();
+    let fecha = document.getElementById("fechaArqueo").value;
+    agregarHistorial("Arqueo", `Base:$${document.getElementById("base").value} Dif:$${document.getElementById("diferencia").innerText}`);
+    alert("🔒 Cuadre guardado en Historial. Diferencia: " + document.getElementById("diferencia").innerText);
+}
+
+function exportarExcel(tipo){
+    let tabla, nombre;
+    if(tipo === 'inventario') { tabla = document.getElementById('tablaInventario'); nombre = 'Inventario'; }
+    if(tipo === 'ventas') { tabla = document.getElementById('tablaVentas'); nombre = 'Ventas_' + document.getElementById("fechaVenta").value; }
+    if(tipo === 'historial') { tabla = document.getElementById('tablaHistorial'); nombre = 'Historial'; }
+    let wb = XLSX.utils.table_to_book(tabla, {sheet: nombre});
+    XLSX.writeFile(wb, nombre + '.xlsx');
+}
+
+function descargarBackup(){
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB));
+    const a = document.createElement('a');
+    a.href = dataStr; a.download = "backup_licoreria_" + new Date().toISOString().slice(0,10) + ".json";
+    a.click();
+}
+
+function cargarBackup(e){
+    let file = e.target.files[0];
+    let reader = new FileReader();
+    reader.onload = function(){ 
+        DB = JSON.parse(reader.result); 
+        guardarDB(); 
+        location.reload(); 
+    }
+    reader.readAsText(file);
+}
+
+function generarReporte(){
+    let mes = document.getElementById("mesReporte").value;
+    let ventasMes = DB.ventas.filter(v => v.fecha.startsWith(mes));
+    let totalVentas = ventasMes.reduce((a,b)=>a+b.sub,0);
+    let totalCosto = ventasMes.reduce((a,b)=>a+(b.costo*b.cant),0);
+    let ganancia = totalVentas - totalCosto;
+    document.getElementById("repVentas").innerText = "$" + totalVentas.toLocaleString('es-CO');
+    document.getElementById("repGanancia").innerText = "$" + ganancia.toLocaleString('es-CO');
+    document.getElementById("repTicket").innerText = "$" + (ventasMes.length>0? (totalVentas/ventasMes.length) : 0).toLocaleString('es-CO');
+    
+    let top = {};
+    ventasMes.forEach(v=>{ top[v.producto] = top[v.producto]||{cant:0,total:0}; top[v.producto].cant+=v.cant; top[v.producto].total+=v.sub; });
+    let tbodyTop = document.querySelector("#tablaTop tbody"); tbodyTop.innerHTML="";
+    Object.entries(top).sort((a,b)=>b[1].total-a[1].total).slice(0,10).forEach(([prod,data])=>{
+        tbodyTop.innerHTML += `<tr><td>${prod}</td><td>${data.cant}</td><td>$${data.total.toLocaleString('es-CO')}</td></tr>`
+    });
+
+    let dias = {};
+    ventasMes.forEach(v=>{ dias[v.fecha]=dias[v.fecha]||{ventas:0,costo:0}; dias[v.fecha].ventas+=v.sub; dias[v.fecha].costo+=v.costo*v.cant; });
+    let tbodyDias = document.querySelector("#tablaDias tbody"); tbodyDias.innerHTML="";
+    Object.entries(dias).forEach(([fecha,data])=>{
+        tbodyDias.innerHTML += `<tr><td>${fecha}</td><td>$${data.ventas.toLocaleString('es-CO')}</td><td>$${(data.ventas-data.costo).toLocaleString('es-CO')}</td></tr>`
+    });
+}
+
+async function imprimirReportePDF(){
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF();
+    doc.setFontSize(16); doc.text(DB.nombre || "Licorería", 105, 15, {align: "center"});
+    doc.setFontSize(12); doc.text("REPORTE MENSUAL: " + document.getElementById("mesReporte").value, 105, 22, {align: "center"});
+    doc.setFontSize(10);
+    doc.text("Ventas: " + document.getElementById("repVentas").innerText, 14, 35);
+    doc.text("Ganancia: " + document.getElementById("repGanancia").innerText, 14, 42);
+    doc.text("Ticket Promedio: " + document.getElementById("repTicket").innerText, 14, 49);
+    doc.save("Reporte_" + document.getElementById("mesReporte").value + ".pdf");
+}
+
+function escanearCodigo(){
+    let cod = prompt("Escanea o escribe el código de barras:");
+    if(cod){ abrirTab('ventas', document.querySelector('.tab[onclick*="ventas"]')); agregarFilaVenta(cod); }
+}
+
+async function toggleScanner(){
+    const video = document.getElementById('videoScanner');
+    const btnCerrar = document.getElementById('btnCerrarScanner');
+    if(scannerActivo){
+        codeReader.reset();
+        video.style.display = 'none';
+        btnCerrar.style.display = 'none';
+        scannerActivo = false;
+        return;
+    }
+    video.style.display = 'block';
+    btnCerrar.style.display = 'inline-block';
+    scannerActivo = true;
+    try {
+        await codeReader.decodeFromVideoDevice(undefined, 'videoScanner', (result, err) => {
+            if (result) {
+                agregarFilaVenta(result.getText());
+                toggleScanner();
+            }
+        });
+    } catch (err) {
+        alert("❌ No se pudo acceder a la cámara. Da permisos o usa el botón manual");
+        toggleScanner();
+    }
+}
+
+async function imprimirTicket(fecha, detalle, total){
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF({orientation: 'p', unit: 'mm', format: [80, 200]});
+    let nombre = DB.nombre || "LICORERÍA";
+    doc.setFontSize(14); doc.text(nombre, 40, 10, {align: "center"});
+    doc.setFontSize(8); doc.text("Fecha: " + fecha + " Hora: " + new Date().toTimeString().slice(0,5), 40, 16, {align: "center"});
+    doc.text("Atendido por: " + usuarioActual.user, 40, 21, {align: "center"});
+    doc.line(5, 24, 75, 24);
+    let y = 30; detalle.forEach(item => { doc.text(item, 5, y); y += 5; });
+    doc.line(5, y, 75, y); y += 5;
+    doc.setFontSize(12); doc.text("TOTAL: $" + total.toLocaleString('es-CO'), 40, y, {align: "center"});
+    y += 7; doc.setFontSize(8); doc.text("¡Gracias por su compra!", 40, y, {align: "center"});
+    doc.save("Ticket_" + fecha + "_" + new Date().getTime() + ".pdf");
+}
+
+async function imprimirCuadre(){
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF();
+    doc.setFontSize(14); doc.text(DB.nombre || "ARQUEO DE CAJA", 105, 15, {align: "center"});
+    doc.setFontSize(10);
+    doc.text("Fecha: " + document.getElementById("fechaArqueo").value, 14, 25);
+    doc.text("Usuario: " + usuarioActual.user, 14, 31);
+    doc.text("Base Inicial: " + document.getElementById("base").value, 14, 37);
+    doc.text("Ventas Sistema: " + document.getElementById("ventasSistema").value, 14, 43);
+    doc.text("Total Contado: " + document.getElementById("totalContado").innerText, 14, 49);
+    doc.text("Diferencia: " + document.getElementById("diferencia").innerText, 14, 55);
+    doc.save("Arqueo_" + document.getElementById("fechaArqueo").value + ".pdf");
+}
+
+function atajosTeclado() { 
+    document.addEventListener('keydown', function(e) { 
+        if(document.getElementById('ventas').classList.contains('active')){ 
+            if(e.key === 'F2') agregarFilaVenta(); 
+            if(e.key === 'F4') escanearCodigo();
+            if(e.key === 'Enter') registrarVenta(); 
+        } 
+        if(document.getElementById('arqueo').classList.contains('active')){ 
+            if(e.key === 'F9') calcularArqueo(); 
+        } 
+    }); 
+}
+
+window.onload = () => {
+    document.getElementById("fechaVenta").valueAsDate = new Date();
+    document.getElementById("fechaArqueo").valueAsDate = new Date();
+    document.getElementById("mesReporte").value = new Date().toISOString().slice(0,7);
+    atajosTeclado();
+}
+</script>
+</body>
+</html>
