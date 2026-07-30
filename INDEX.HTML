@@ -77,7 +77,7 @@
     <label>Clave:</label><input type="password" id="passLogin">
     <button class="btn verde" style="width:100%; margin-top:15px;" onclick="iniciarSesion()">Entrar</button>
     <button class="btn azul" style="width:100%; margin-top:8px;" onclick="registrarUsuario()">Crear Cuenta Nueva</button>
-    <p style="font-size:11px; color:#666; text-align:center;">INGRESA CON TU CORREO Y CLAVE.</p>
+    <p style="font-size:11px; color:#666; text-align:center;">INGRESA CON TU CORREO Y CLAVE. SI NO TIENES CUENTA, CREA UNA NUEVA.</p>
 </div>
 
 <div id="app">
@@ -161,6 +161,7 @@
     <div class="box"><h3>Cuadre</h3><p><b>Total Contado:</b> <span id="totalContado">$0</span></p><p><b>Sobrante / Faltante:</b> <span id="diferencia">$0</span></p><button class="btn azul" onclick="calcularArqueo()">F9 🧮 Solo Cuadrar</button><button class="btn verde" onclick="guardarCuadre()">💾 Guardar en Historial</button><button class="btn" onclick="imprimirCuadre()">🖨️ Imprimir PDF</button></div>
 </div>
 
+<div id="usuarios" class="content"><div class="box"><h3>Crear Usuario</h3><input type="email" id="newUser" placeholder="Correo Usuario"><input type="password" id="newPass" placeholder="Clave"><select id="newRol"><option value="vendedor">Vendedor</option><option value="admin">Admin</option></select><button class="btn verde" onclick="crearUsuario()">Crear</button></div><div class="tabla-contenedor"><table id="tablaUsuarios"><thead><tr><th>Correo</th><th>Rol</th><th></th></tr></thead><tbody></tbody></table></div></div>
 </div>
 
 <script>
@@ -234,6 +235,7 @@ function cerrarSesion(){
 function abrirTab(id, el) { document.querySelectorAll('.content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); if(id==='reportes') generarReporte(); }
 function filtrarTabla(idTabla, idInput){ let input = document.getElementById(idInput).value.toLowerCase(); let filas = document.querySelectorAll(`#${idTabla} tbody tr`); filas.forEach(fila => { let texto = fila.innerText.toLowerCase(); fila.style.display = texto.includes(input)? "" : "none"; }); }
 
+function crearUsuario(){ let u = document.getElementById('newUser').value.trim(); let p = document.getElementById('newPass').value; let r = document.getElementById('newRol').value; if(!u ||!p) return alert("Completa campos"); if(DB.usuarios.find(x=>x.user===u)) return alert("Usuario ya existe"); DB.usuarios.push({user:u, rol:r}); guardarDB(); agregarHistorial("Usuario", `Creado usuario: ${u}`); cargarUsuarios(); document.getElementById('newUser').value=""; document.getElementById('newPass').value=""; }
 function cargarUsuarios(){ let tbody = document.querySelector("#tablaUsuarios tbody"); tbody.innerHTML = ""; DB.usuarios.forEach((u,i)=> tbody.innerHTML += `<tr><td>${u.user}</td><td>${u.rol}</td><td>${u.user!=='admin'?`<button class="btn rojo" onclick="DB.usuarios.splice(${i},1); guardarDB(); agregarHistorial('Usuario', 'Eliminado usuario: ${u.user}'); cargarUsuarios()">X</button>`:""}</td></tr>`); }
 
 function calcularMargen() { let costo = parseFloat(document.getElementById('m_costo').value) || 0; let gastos = parseFloat(document.getElementById('m_gastos').value) || 0; let margen = parseFloat(document.getElementById('m_margen').value) || 0; let costoTotal = costo + gastos; document.getElementById('m_costoTotal').value = costoTotal.toFixed(0); document.getElementById('m_precio').value = (costoTotal / (1 - Math.min(margen,99)/100)).toFixed(0); }
